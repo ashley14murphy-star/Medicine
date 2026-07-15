@@ -25,13 +25,13 @@ class MedicineController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'category' => 'required|string', // IDINAGDAG
             'quantity' => 'required|integer|min:0',
             'expiry_date' => 'required|date|after_or_equal:today',
         ]);
 
         Medicine::create($validated);
 
-        // PINALITAN: redirect sa 'dashboard' sa halip na 'medicines.index'
         return redirect()->route('dashboard')->with('success', 'Medical record added successfully!');
     }
 
@@ -40,13 +40,13 @@ class MedicineController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'category' => 'required|string', // IDINAGDAG
             'quantity' => 'required|integer|min:0',
             'expiry_date' => 'required|date',
         ]);
 
         $medicine->update($validated);
 
-        // PINALITAN: redirect sa 'dashboard' sa halip na 'medicines.index'
         return redirect()->route('dashboard')->with('success', 'Medical record updated successfully!');
     }
 
@@ -55,7 +55,6 @@ class MedicineController extends Controller
     {
         $medicine->delete();
 
-        // PINALITAN: redirect sa 'dashboard' sa halip na 'medicines.index'
         return redirect()->route('dashboard')->with('success', 'Medical record deleted successfully!');
     }
 }

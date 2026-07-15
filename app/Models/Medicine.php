@@ -11,6 +11,7 @@ class Medicine extends Model
 
     protected $fillable = [
         'name',
+        'category',
         'quantity',
         'expiry_date',
     ];
