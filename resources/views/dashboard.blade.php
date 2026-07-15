@@ -7,7 +7,7 @@
         </div>
     </x-slot>
 
-    <!-- Gagamit tayo ng simpleng Alpine.js state para sa modal control at filtering -->
+    <!-- Alpine.js state para sa modal control, search, at category filtering -->
     <div class="py-12" x-data="{ 
         openModal: @json((bool)$editingMedicine),
         searchQuery: '',
@@ -22,47 +22,127 @@
                 </div>
             @endif
 
-            <!-- Search and Filter Bar -->
-            <div class="bg-white dark:bg-gray-800 p-4 shadow-md sm:rounded-lg border border-gray-100 dark:border-gray-700 flex flex-col md:flex-row gap-4 items-center justify-between">
-                <!-- Search Input -->
-                <div class="relative w-full md:w-1/2">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                        🔍
-                    </span>
-                    <input 
-                        type="text" 
-                        x-model="searchQuery" 
-                        placeholder="Search by medicine name..." 
-                        class="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300"
-                    />
+            <!-- Category Summary Cards Section -->
+            <div class="flex flex-wrap gap-6 mb-6">
+                <!-- Tablet Card -->
+                <div @click="selectedCategory = (selectedCategory === 'Tablet' ? '' : 'Tablet')" 
+                     :class="selectedCategory === 'Tablet' ? 'ring-2 ring-indigo-500 bg-indigo-50/10 dark:bg-indigo-950/10' : ''"
+                     class="w-full sm:w-64 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col justify-between cursor-pointer hover:shadow transition-all duration-200">
+                    <div>
+                        <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-2">Tablets</span>
+                        <div class="text-4xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                            {{ $categoryCounts['Tablet'] ?? 0 }}
+                        </div>
+                    </div>
+                    <div class="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                        Products in inventory
+                    </div>
                 </div>
 
-                <!-- Category Filter Dropdown -->
-                <div class="w-full md:w-1/4">
-                    <select 
-                        x-model="selectedCategory" 
-                        class="w-full py-2 rounded-lg border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300"
-                    >
-                        <option value="">All Categories</option>
-                        <option value="Tablet">Tablet</option>
-                        <option value="Capsule">Capsule</option>
-                        <option value="Syrup">Syrup</option>
-                        <option value="Ointment">Ointment</option>
-                        <option value="Injection">Injection</option>
-                    </select>
+                <!-- Capsule Card -->
+                <div @click="selectedCategory = (selectedCategory === 'Capsule' ? '' : 'Capsule')"
+                     :class="selectedCategory === 'Capsule' ? 'ring-2 ring-indigo-500 bg-indigo-50/10 dark:bg-indigo-950/10' : ''"
+                     class="w-full sm:w-64 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col justify-between cursor-pointer hover:shadow transition-all duration-200">
+                    <div>
+                        <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-2">Capsules</span>
+                        <div class="text-4xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                            {{ $categoryCounts['Capsule'] ?? 0 }}
+                        </div>
+                    </div>
+                    <div class="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                        Products in inventory
+                    </div>
+                </div>
+
+                <!-- Syrup Card -->
+                <div @click="selectedCategory = (selectedCategory === 'Syrup' ? '' : 'Syrup')"
+                     :class="selectedCategory === 'Syrup' ? 'ring-2 ring-indigo-500 bg-indigo-50/10 dark:bg-indigo-950/10' : ''"
+                     class="w-full sm:w-64 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col justify-between cursor-pointer hover:shadow transition-all duration-200">
+                    <div>
+                        <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-2">Syrups</span>
+                        <div class="text-4xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                            {{ $categoryCounts['Syrup'] ?? 0 }}
+                        </div>
+                    </div>
+                    <div class="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                        Products in inventory
+                    </div>
+                </div>
+
+                <!-- Ointment Card -->
+                <div @click="selectedCategory = (selectedCategory === 'Ointment' ? '' : 'Ointment')"
+                     :class="selectedCategory === 'Ointment' ? 'ring-2 ring-indigo-500 bg-indigo-50/10 dark:bg-indigo-950/10' : ''"
+                     class="w-full sm:w-64 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col justify-between cursor-pointer hover:shadow transition-all duration-200">
+                    <div>
+                        <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-2">Ointments</span>
+                        <div class="text-4xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                            {{ $categoryCounts['Ointment'] ?? 0 }}
+                        </div>
+                    </div>
+                    <div class="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                        Products in inventory
+                    </div>
+                </div>
+
+                <!-- Injection Card -->
+                <div @click="selectedCategory = (selectedCategory === 'Injection' ? '' : 'Injection')"
+                     :class="selectedCategory === 'Injection' ? 'ring-2 ring-indigo-500 bg-indigo-50/10 dark:bg-indigo-950/10' : ''"
+                     class="w-full sm:w-64 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col justify-between cursor-pointer hover:shadow transition-all duration-200">
+                    <div>
+                        <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-2">Injections</span>
+                        <div class="text-4xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                            {{ $categoryCounts['Injection'] ?? 0 }}
+                        </div>
+                    </div>
+                    <div class="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                        Products in inventory
+                    </div>
                 </div>
             </div>
 
             <!-- Main Inventory Table Card -->
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-md sm:rounded-lg border border-gray-100 dark:border-gray-700">
                 <div class="p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ __('Inventory List') }}</h3>
+                    
+                    <!-- ONE-LINE ROW LAYOUT (Search -> Dropdown -> Button) -->
+                    <div class="flex flex-row items-center justify-between gap-4 mb-6">
+                        <!-- Pamagat sa Kaliwa -->
+                        <h3 class="text-xl font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                            {{ __('All Products') }}
+                        </h3>
                         
-                        <!-- Green Add Button -->
-                        <button @click="openModal = true" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-black text-sm font-semibold rounded-lg shadow transition">
-                            <span class="mr-1.5 font-bold">+</span> {{ __('Add New Medicine') }}
-                        </button>
+                        <!-- Pahalang na Grupo sa Kanan (Laging magkakatabi) -->
+                        <div class="flex flex-row items-center gap-3">
+                            <!-- Search Input Box -->
+                            <div class="w-48 sm:w-64">
+                                <input 
+                                    type="text" 
+                                    x-model="searchQuery" 
+                                    placeholder="Search inventory..." 
+                                    class="px-4 py-2 text-sm w-full rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 placeholder-gray-400"
+                                />
+                            </div>
+
+                            <!-- Category Dropdown Filter -->
+                            <div class="w-36 sm:w-44">
+                                <select 
+                                    x-model="selectedCategory" 
+                                    class="px-7 py-2 text-sm w-full rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 text-gray-600 dark:text-gray-400"
+                                >
+                                    <option value="">All Categories</option>
+                                    <option value="Tablet">Tablet</option>
+                                    <option value="Capsule">Capsule</option>
+                                    <option value="Syrup">Syrup</option>
+                                    <option value="Ointment">Ointment</option>
+                                    <option value="Injection">Injection</option>
+                                </select>
+                            </div>
+
+                            <!-- Add Product Button (Blue layout) -->
+                            <button @click="openModal = true" class="inline-flex items-center justify-center whitespace-nowrap px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow transition">
+                                + Add Product
+                            </button>
+                        </div>
                     </div>
                     
                     @if($medicines->isEmpty())
@@ -83,7 +163,6 @@
                                 </thead>
                                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                     @foreach($medicines as $medicine)
-                                        <!-- Alpine-based instant filtration check -->
                                         <tr 
                                             x-show="(searchQuery === '' || '{{ strtolower($medicine->name) }}'.includes(searchQuery.toLowerCase())) && (selectedCategory === '' || '{{ $medicine->category ?? '' }}' === selectedCategory)"
                                             class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ $medicine->expiry_date->isPast() ? 'bg-red-50/50 dark:bg-red-950/20' : '' }}"
@@ -109,8 +188,6 @@
                                                 <a href="{{ route('dashboard', ['edit' => $medicine->id]) }}" class="inline-flex items-center px-3 py-1.5 bg-yellow-600 hover:bg-yellow-700 text-black text-xs font-bold rounded shadow-sm transition">
                                                     Edit
                                                 </a>
-                                                
-                                                <!-- Delete Button -->
                                                 <form action="{{ route('medicines.destroy', $medicine->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this record?');">
                                                     @csrf
                                                     @method('DELETE')
@@ -141,7 +218,6 @@
 
                     <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                    <!-- Modal Body -->
                     <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full p-6 border border-gray-200 dark:border-gray-700">
                         
                         <div class="flex justify-between items-center mb-4 border-b pb-2">
@@ -157,7 +233,6 @@
                                 @method('PUT')
                             @endif
 
-                            <!-- Name input -->
                             <div>
                                 <label for="name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Medicine Name / Detail</label>
                                 <input type="text" name="name" id="name" value="{{ old('name', $editingMedicine->name ?? '') }}" required
@@ -165,7 +240,6 @@
                                 @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
-                            <!-- Category Selection Input -->
                             <div>
                                 <label for="category" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Category</label>
                                 <select name="category" id="category" required
@@ -180,7 +254,6 @@
                                 @error('category') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
-                            <!-- Quantity input -->
                             <div>
                                 <label for="quantity" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Quantity</label>
                                 <input type="number" name="quantity" id="quantity" value="{{ old('quantity', $editingMedicine->quantity ?? '') }}" min="0" required
@@ -188,7 +261,6 @@
                                 @error('quantity') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
-                            <!-- Expiry Date input -->
                             <div>
                                 <label for="expiry_date" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Expiry Date</label>
                                 <input type="date" name="expiry_date" id="expiry_date" value="{{ old('expiry_date', isset($editingMedicine) ? $editingMedicine->expiry_date->format('Y-m-d') : '') }}" required
@@ -196,12 +268,10 @@
                                 @error('expiry_date') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
-                            <!-- Modal Action Buttons -->
                             <div class="flex justify-end gap-3 pt-4 border-t mt-6">
                                 <a href="{{ route('dashboard') }}" @click="openModal = false" class="inline-flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 text-sm font-semibold rounded-md transition">
                                     {{ __('Cancel') }}
                                 </a>
-                                
                                 <button type="submit" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-black text-sm font-semibold rounded-md shadow transition">
                                     {{ $editingMedicine ? __('Update') : __('Save') }}
                                 </button>

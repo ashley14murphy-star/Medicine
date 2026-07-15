@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class MedicineController extends Controller
 {
-    // Display dashboard with list of medicines and optional edit target
+    // Display dashboard with list of medicines, optional edit target, and category counts
     public function index(Request $request)
     {
         $medicines = Medicine::orderBy('expiry_date', 'asc')->get();
@@ -17,7 +17,17 @@ class MedicineController extends Controller
             $editingMedicine = Medicine::find($request->edit);
         }
 
-        return view('dashboard', compact('medicines', 'editingMedicine'));
+        // Kinukuha natin ang bilang ng active records para sa bawat kategorya
+        $categoryCounts = [
+            'Tablet'    => Medicine::where('category', 'Tablet')->count(),
+            'Capsule'   => Medicine::where('category', 'Capsule')->count(),
+            'Syrup'     => Medicine::where('category', 'Syrup')->count(),
+            'Ointment'  => Medicine::where('category', 'Ointment')->count(),
+            'Injection' => Medicine::where('category', 'Injection')->count(),
+        ];
+
+        // Isinama ang 'categoryCounts' sa compact para magamit sa Blade template
+        return view('dashboard', compact('medicines', 'editingMedicine', 'categoryCounts'));
     }
 
     // Store a new medicine
@@ -25,7 +35,7 @@ class MedicineController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'category' => 'required|string', // IDINAGDAG
+            'category' => 'required|string',
             'quantity' => 'required|integer|min:0',
             'expiry_date' => 'required|date|after_or_equal:today',
         ]);
@@ -40,7 +50,7 @@ class MedicineController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'category' => 'required|string', // IDINAGDAG
+            'category' => 'required|string',
             'quantity' => 'required|integer|min:0',
             'expiry_date' => 'required|date',
         ]);
