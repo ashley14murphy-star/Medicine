@@ -1,116 +1,75 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Medical Inventory Dashboard') }}
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                {{ __('Medical Inventory Dashboard') }}
+            </h2>
+        </div>
     </x-slot>
 
-    <div class="py-12">
+    <!-- Gagamit tayo ng simpleng Alpine.js state para sa modal control -->
+    <div class="py-12" x-data="{ openModal: @json((bool)$editingMedicine) }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             
             <!-- Success Notification Banner -->
             @if(session('success'))
-                <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 font-medium" role="alert">
+                <div class="p-4 mb-6 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 font-medium shadow-sm" role="alert">
                     {{ session('success') }}
                 </div>
             @endif
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                <!-- Form Column (Add / Edit) -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
-                        {{ $editingMedicine ? __('Edit Medical Detail') : __('Add New Medical Detail') }}
-                    </h3>
-
-                    <form action="{{ $editingMedicine ? route('medicines.update', $editingMedicine->id) : route('medicines.store') }}" method="POST" class="space-y-4">
-                        @csrf
-                        @if($editingMedicine)
-                            @method('PUT')
-                        @endif
-
-                        <!-- Name input -->
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Medicine Name / Detail</label>
-                            <input type="text" name="name" id="name" value="{{ old('name', $editingMedicine->name ?? '') }}" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300">
-                            @error('name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-
-                        <!-- Quantity input -->
-                        <div>
-                            <label for="quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Quantity</label>
-                            <input type="number" name="quantity" id="quantity" value="{{ old('quantity', $editingMedicine->quantity ?? '') }}" min="0" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300">
-                            @error('quantity') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-
-                        <!-- Expiry Date input -->
-                        <div>
-                            <label for="expiry_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Expiry Date</label>
-                            <input type="date" name="expiry_date" id="expiry_date" value="{{ old('expiry_date', isset($editingMedicine) ? $editingMedicine->expiry_date->format('Y-m-d') : '') }}" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300">
-                            @error('expiry_date') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-
-                        <!-- Form Actions -->
-                        <div class="flex items-center gap-4 pt-2">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow">
-                                {{ $editingMedicine ? __('Update') : __('Save') }}
-                            </button>
-                            
-                            @if($editingMedicine)
-                                <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-md">
-                                    {{ __('Cancel') }}
-                                </a>
-                            @endif
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Table Column (List) -->
-                <div class="md:col-span-2 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">{{ __('Inventory List') }}</h3>
+            <!-- Main Inventory Table Card -->
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-md sm:rounded-lg border border-gray-100 dark:border-gray-700">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ __('Inventory List') }}</h3>
+                        
+                        <!-- Green Add Button (May malinaw na kulay at text) -->
+                        <button @click="openModal = true" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-black text-sm font-semibold rounded-lg shadow transition">
+                            <span class="mr-1.5 font-bold">+</span> {{ __('Add New Medicine') }}
+                        </button>
+                    </div>
                     
                     @if($medicines->isEmpty())
-                        <p class="text-gray-500 dark:text-gray-400 text-sm">{{ __('No medical records found.') }}</p>
+                        <div class="text-center py-8">
+                            <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">{{ __('No medical records found.') }}</p>
+                        </div>
                     @else
-                        <div class="overflow-x-auto">
+                        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-gray-50 dark:bg-gray-900">
                                     <tr>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quantity</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Expiry Date</th>
-                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quantity</th>
+                                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Expiry Date</th>
+                                        <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                     @foreach($medicines as $medicine)
-                                        <tr class="{{ $medicine->expiry_date->isPast() ? 'bg-red-50 dark:bg-red-900/20' : '' }}">
-                                            <td class="px-6 py-4 whitespace-nowrap text-gray-950 dark:text-gray-100 font-medium">
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ $medicine->expiry_date->isPast() ? 'bg-red-50/50 dark:bg-red-950/20' : '' }}">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 font-medium">
                                                 {{ $medicine->name }}
                                                 @if($medicine->expiry_date->isPast())
-                                                    <span class="ml-2 px-2 py-0.5 text-xs text-red-700 bg-red-100 rounded-full dark:bg-red-200 dark:text-red-900">Expired</span>
+                                                    <span class="ml-2 px-2.5 py-0.5 text-xs font-semibold text-red-700 bg-red-100 rounded-full dark:bg-red-900/40 dark:text-red-300">Expired</span>
                                                 @endif
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 font-semibold">
                                                 {{ $medicine->quantity }}
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                                                 {{ $medicine->expiry_date->format('M d, Y') }}
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-right space-x-2">
-                                                <!-- Edit Button -->
-                                                <a href="{{ route('dashboard', ['edit' => $medicine->id]) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 font-semibold">
+                                            <td class="px-6 py-4 whitespace-nowrap text-center space-x-2">
+                                                <a href="{{ route('dashboard', ['edit' => $medicine->id]) }}" class="inline-flex items-center px-3 py-1.5 bg-yellow-600 hover:bg-yellow-700 text-black text-xs font-bold rounded shadow-sm transition">
                                                     Edit
                                                 </a>
                                                 
-                                                <!-- Delete Button -->
+                                                <!-- Delete Button (Solid Red Button) -->
                                                 <form action="{{ route('medicines.destroy', $medicine->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this record?');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 font-semibold">
+                                                    <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded shadow-sm transition">
                                                         Delete
                                                     </button>
                                                 </form>
@@ -122,8 +81,80 @@
                         </div>
                     @endif
                 </div>
-
             </div>
+
+            <!-- CUSTOM ALPINE.JS MODAL (Siguradong gagana nang walang dependency) -->
+            <div x-show="openModal" 
+                 class="fixed inset-0 z-50 overflow-y-auto" 
+                 style="display: none;"
+                 aria-labelledby="modal-title" 
+                 role="dialog" 
+                 aria-modal="true">
+                
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <!-- Dark background overlay -->
+                    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="openModal = false"></div>
+
+                    <!-- Modal helper to center content -->
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                    <!-- Modal Body -->
+                    <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full p-6 border border-gray-200 dark:border-gray-700">
+                        
+                        <div class="flex justify-between items-center mb-4 border-b pb-2">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100" id="modal-title">
+                                {{ $editingMedicine ? __('Edit Medical Detail') : __('Add New Medical Detail') }}
+                            </h3>
+                            <button @click="openModal = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 font-bold text-xl">&times;</button>
+                        </div>
+
+                        <form action="{{ $editingMedicine ? route('medicines.update', $editingMedicine->id) : route('medicines.store') }}" method="POST" class="space-y-4">
+                            @csrf
+                            @if($editingMedicine)
+                                @method('PUT')
+                            @endif
+
+                            <!-- Name input -->
+                            <div>
+                                <label for="name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Medicine Name / Detail</label>
+                                <input type="text" name="name" id="name" value="{{ old('name', $editingMedicine->name ?? '') }}" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300">
+                                @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- Quantity input -->
+                            <div>
+                                <label for="quantity" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Quantity</label>
+                                <input type="number" name="quantity" id="quantity" value="{{ old('quantity', $editingMedicine->quantity ?? '') }}" min="0" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300">
+                                @error('quantity') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- Expiry Date input -->
+                            <div>
+                                <label for="expiry_date" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Expiry Date</label>
+                                <input type="date" name="expiry_date" id="expiry_date" value="{{ old('expiry_date', isset($editingMedicine) ? $editingMedicine->expiry_date->format('Y-m-d') : '') }}" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300">
+                                @error('expiry_date') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- Modal Action Buttons -->
+                            <div class="flex justify-end gap-3 pt-4 border-t mt-6">
+                                <!-- Cancel Button (Gray) -->
+                                <a href="{{ route('dashboard') }}" @click="openModal = false" class="inline-flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 text-sm font-semibold rounded-md transition">
+                                    {{ __('Cancel') }}
+                                </a>
+                                
+                                <!-- Submit Button (Green / Indigo) -->
+                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-black text-sm font-semibold rounded-md shadow transition">
+                                    {{ $editingMedicine ? __('Update') : __('Save') }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </x-app-layout>
